@@ -1,10 +1,7 @@
 import { z } from "zod";
 
 const envSchema = z.object({
-  DATABASE_URL: z
-    .string()
-    .url()
-    .describe("PostgreSQL connection string"),
+  DATABASE_URL: z.string().url().describe("PostgreSQL connection string"),
 
   OPENROUTER_API_KEY: z
     .string()
@@ -39,9 +36,6 @@ export type Env = z.infer<typeof envSchema>;
 
 let _env: Env | null = null;
 
-/**
- * Parse and validate environment variables. Throws with clear messages on failure.
- */
 export function loadEnv(): Env {
   if (_env) return _env;
 
@@ -52,7 +46,9 @@ export function loadEnv(): Env {
       .map((i) => `  - ${i.path.join(".")}: ${i.message}`)
       .join("\n");
     console.error(`\n❌ Environment validation failed:\n${formatted}\n`);
-    console.error("Hint: Copy .env.example to .env and fill in the required values.\n");
+    console.error(
+      "Hint: Copy .env.example to .env and fill in the required values.\n",
+    );
     process.exit(1);
   }
 
@@ -60,9 +56,6 @@ export function loadEnv(): Env {
   return _env;
 }
 
-/**
- * Get the validated env (must call loadEnv() first).
- */
 export function getEnv(): Env {
   if (!_env) {
     return loadEnv();

@@ -7,15 +7,11 @@ import {
   pgEnum,
 } from "drizzle-orm/pg-core";
 
-// ---- Enums ----
-
 export const billingStatusEnum = pgEnum("billing_status", [
   "pending",
   "reported",
   "failed",
 ]);
-
-// ---- Users table ----
 
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -27,8 +23,6 @@ export const users = pgTable("users", {
     .notNull(),
 });
 
-// ---- Transactions table ----
-
 export const transactions = pgTable("transactions", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: uuid("user_id")
@@ -39,10 +33,12 @@ export const transactions = pgTable("transactions", {
   promptTokens: integer("prompt_tokens").notNull().default(0),
   completionTokens: integer("completion_tokens").notNull().default(0),
   totalTokens: integer("total_tokens").notNull().default(0),
-  requestTimestamp: timestamp("request_timestamp", { withTimezone: true })
-    .notNull(),
-  responseTimestamp: timestamp("response_timestamp", { withTimezone: true })
-    .notNull(),
+  requestTimestamp: timestamp("request_timestamp", {
+    withTimezone: true,
+  }).notNull(),
+  responseTimestamp: timestamp("response_timestamp", {
+    withTimezone: true,
+  }).notNull(),
   billingStatus: billingStatusEnum("billing_status")
     .notNull()
     .default("pending"),
@@ -51,8 +47,6 @@ export const transactions = pgTable("transactions", {
     .defaultNow()
     .notNull(),
 });
-
-// ---- Type exports for Drizzle ----
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;

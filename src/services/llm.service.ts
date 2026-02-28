@@ -25,13 +25,9 @@ export interface LLMResponse {
   usage: TokenUsage;
 }
 
-/**
- * Send a chat completion request to OpenRouter.
- * Returns the assistant message and token usage.
- */
 export async function chatCompletion(
   messages: ChatMessage[],
-  model: string = "openai/gpt-3.5-turbo"
+  model: string = "openai/gpt-3.5-turbo",
 ): Promise<LLMResponse> {
   const client = getClient();
 
@@ -63,8 +59,6 @@ export async function chatCompletion(
     },
   };
 }
-
-// ---- Custom Error ----
 
 export class LLMError extends Error {
   code: string;

@@ -20,17 +20,10 @@ export interface UsageReport {
   error?: string;
 }
 
-/**
- * Report token usage to Stripe via the Billing Meters API.
- *
- * @param stripeCustomerId - The Stripe customer ID to attribute usage to
- * @param totalTokens      - Number of tokens consumed
- * @param requestId        - Unique request ID used as deduplication identifier
- */
 export async function reportUsage(
   stripeCustomerId: string,
   totalTokens: number,
-  requestId: string
+  requestId: string,
 ): Promise<UsageReport> {
   if (!stripeCustomerId) {
     return {
@@ -62,7 +55,10 @@ export async function reportUsage(
         ? `Stripe error: ${error.type} - ${error.message}`
         : `Unknown billing error: ${String(error)}`;
 
-    console.error(`Failed to report usage for customer ${stripeCustomerId}:`, message);
+    console.error(
+      `Failed to report usage for customer ${stripeCustomerId}:`,
+      message,
+    );
 
     return {
       success: false,
@@ -72,39 +68,37 @@ export async function reportUsage(
   }
 }
 
-/**
- * Ensure the Stripe billing meter exists. Creates it if not found.
- * Called once at application startup.
- */
 export async function ensureMeterExists(): Promise<void> {
   const stripe = getStripe();
   const env = getEnv();
 
   try {
-    // List existing meters and check if ours exists
     const meters = await stripe.billing.meters.list({ limit: 100 });
     const existing = meters.data.find(
-      (m) => m.event_name === env.STRIPE_METER_EVENT_NAME && m.status === "active"
+      (m) =>
+        m.event_name === env.STRIPE_METER_EVENT_NAME && m.status === "active",
     );
 
     if (existing) {
-      console.log(`Stripe meter "${env.STRIPE_METER_EVENT_NAME}" already exists (${existing.id}).`);
+      console.log(
+        `Stripe meter "${env.STRIPE_METER_EVENT_NAME}" already exists (${existing.id}).`,
+      );
       return;
     }
 
-    // Create the meter
     const meter = await stripe.billing.meters.create({
       display_name: "AI Token Usage",
       event_name: env.STRIPE_METER_EVENT_NAME,
       default_aggregation: { formula: "sum" },
     });
 
-    console.log(`Created Stripe meter "${env.STRIPE_METER_EVENT_NAME}" (${meter.id}).`);
+    console.log(
+      `Created Stripe meter "${env.STRIPE_METER_EVENT_NAME}" (${meter.id}).`,
+    );
   } catch (error) {
-    // Non-fatal: log and continue. Billing will fail but the app still works.
     console.warn(
       "Warning: Could not verify/create Stripe billing meter:",
-      error instanceof Error ? error.message : String(error)
+      error instanceof Error ? error.message : String(error),
     );
   }
 }

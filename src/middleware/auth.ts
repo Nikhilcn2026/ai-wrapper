@@ -4,7 +4,6 @@ import { getDb } from "../db/client";
 import { users } from "../db/schema";
 import type { UserRecord } from "../types";
 
-// Extend Express Request to include user
 declare global {
   namespace Express {
     interface Request {
@@ -13,14 +12,10 @@ declare global {
   }
 }
 
-/**
- * Middleware that authenticates requests via the X-API-Key header.
- * Looks up the user by API key in the database.
- */
 export async function authMiddleware(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> {
   const apiKey = req.headers["x-api-key"] as string | undefined;
 

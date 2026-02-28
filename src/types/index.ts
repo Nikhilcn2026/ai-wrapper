@@ -1,7 +1,3 @@
-// ============================================
-// Shared TypeScript types
-// ============================================
-
 export interface ChatRequest {
   messages: ChatMessage[];
   model?: string;

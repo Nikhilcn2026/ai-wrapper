@@ -1,14 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { z } from "zod";
 
-// Test the chat request validation schema independently
 const chatRequestSchema = z.object({
   messages: z
     .array(
       z.object({
         role: z.enum(["system", "user", "assistant"]),
         content: z.string().min(1),
-      })
+      }),
     )
     .min(1, "At least one message is required"),
   model: z.string().optional().default("openai/gpt-3.5-turbo"),
@@ -17,9 +16,7 @@ const chatRequestSchema = z.object({
 describe("Chat request validation", () => {
   it("should accept a valid chat request", () => {
     const input = {
-      messages: [
-        { role: "user", content: "Hello, how are you?" },
-      ],
+      messages: [{ role: "user", content: "Hello, how are you?" }],
     };
 
     const result = chatRequestSchema.safeParse(input);
@@ -93,7 +90,7 @@ describe("Environment validation", () => {
 
     expect(portSchema.parse("8080")).toBe(8080);
     expect(portSchema.parse("3000")).toBe(3000);
-    expect(portSchema.parse(undefined)).toBe(3000); // default
+    expect(portSchema.parse(undefined)).toBe(3000);
   });
 
   it("should reject invalid PORT values", () => {

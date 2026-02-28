@@ -1,13 +1,4 @@
-# ============================================
-# AI Billing Engine - Docker Compose
-# ============================================
-# Usage:
-#   cp .env.example .env    # fill in your keys
-#   docker-compose up --build
-# ============================================
-
 services:
-  # ---- PostgreSQL Database ----
   postgres:
     image: postgres:16-alpine
     environment:
@@ -25,7 +16,6 @@ services:
       retries: 10
     restart: unless-stopped
 
-  # ---- Application ----
   app:
     build:
       context: .
@@ -35,7 +25,6 @@ services:
     env_file:
       - .env
     environment:
-      # Override DATABASE_URL to use the docker-compose service name
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ai_billing
     depends_on:
       postgres:

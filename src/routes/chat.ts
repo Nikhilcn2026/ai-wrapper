@@ -12,21 +12,17 @@ import type { ChatResponse } from "../types";
 
 const router = Router();
 
-// ---- Request validation schema ----
-
 const chatRequestSchema = z.object({
   messages: z
     .array(
       z.object({
         role: z.enum(["system", "user", "assistant"]),
         content: z.string().min(1),
-      })
+      }),
     )
     .min(1, "At least one message is required"),
   model: z.string().optional().default("openai/gpt-3.5-turbo"),
 });
-
-// ---- POST /api/chat ----
 
 router.post(
   "/",
@@ -37,14 +33,11 @@ router.post(
       const requestId = uuidv4();
       const requestTimestamp = new Date();
 
-      // 1. Validate request body
       const body = chatRequestSchema.parse(req.body);
 
-      // 2. Call LLM via OpenRouter
       const llmResponse = await chatCompletion(body.messages, body.model);
       const responseTimestamp = new Date();
 
-      // 3. Log transaction with pending billing status
       await logTransaction({
         userId: user.id,
         requestId,
@@ -56,7 +49,6 @@ router.post(
         responseTimestamp,
       });
 
-      // 4. Report usage to Stripe
       let billingStatus: "reported" | "failed" = "failed";
       let stripeMeterEventId: string | null = null;
 
@@ -64,7 +56,7 @@ router.post(
         const report = await reportUsage(
           user.stripeCustomerId,
           llmResponse.usage.totalTokens,
-          requestId
+          requestId,
         );
 
         if (report.success) {
@@ -73,10 +65,8 @@ router.post(
         }
       }
 
-      // 5. Update transaction billing status
       await updateBillingStatus(requestId, billingStatus, stripeMeterEventId);
 
-      // 6. Return response
       const response: ChatResponse = {
         requestId,
         model: llmResponse.model,
@@ -89,7 +79,7 @@ router.post(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 export default router;

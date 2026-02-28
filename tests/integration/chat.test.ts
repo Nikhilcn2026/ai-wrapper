@@ -3,29 +3,11 @@ import express from "express";
 import request from "supertest";
 import { Pool } from "pg";
 
-/**
- * Integration tests for the AI Billing Engine.
- *
- * These tests require:
- *   - A running PostgreSQL instance (via docker-compose)
- *   - Valid OPENROUTER_API_KEY and STRIPE_SECRET_KEY in the environment
- *
- * Run with:
- *   docker-compose up -d postgres
- *   npm run test:integration
- *
- * Or inside Docker:
- *   docker-compose run app npm run test:integration
- */
-
-// Build a minimal test app
 async function createTestApp() {
-  // Set required env vars for testing (if not set)
   process.env.DATABASE_URL =
     process.env.DATABASE_URL ||
     "postgresql://postgres:postgres@localhost:5432/ai_billing";
-  process.env.OPENROUTER_API_KEY =
-    process.env.OPENROUTER_API_KEY || "test-key";
+  process.env.OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "test-key";
   process.env.STRIPE_SECRET_KEY =
     process.env.STRIPE_SECRET_KEY || "sk_test_fake";
   process.env.STRIPE_METER_EVENT_NAME =
@@ -56,7 +38,6 @@ describe("Health endpoint", () => {
   it("GET /health should return status", async () => {
     const res = await request(app).get("/health");
 
-    // The status depends on whether postgres is running
     expect(res.status).toBeOneOf([200, 503]);
     expect(res.body).toHaveProperty("status");
     expect(res.body).toHaveProperty("db");
@@ -68,7 +49,6 @@ describe("Chat endpoint", () => {
   it("should reject requests without API key", async () => {
     const app = await createTestApp();
 
-    // Import chat router
     const { default: chatRouter } = await import("../../src/routes/chat");
     const { errorHandler } = await import("../../src/middleware/errorHandler");
     app.use("/api/chat", chatRouter);
@@ -95,7 +75,6 @@ describe("Chat endpoint", () => {
       .set("X-API-Key", "nonexistent-key")
       .send({ messages: [{ role: "user", content: "Hello" }] });
 
-    // Will be 401 (invalid key) or 500 (DB not reachable)
     expect(res.status).toBeOneOf([401, 500]);
   });
 });

@@ -21,16 +21,12 @@ const SEED_USERS = [
   },
 ];
 
-/**
- * Seed the database with test users if the users table is empty.
- */
 export async function seedDatabase(databaseUrl: string): Promise<void> {
   const pool = new Pool({ connectionString: databaseUrl });
 
   try {
     const db = drizzle(pool);
 
-    // Check if users already exist
     const existing = await db.select().from(users).limit(1);
     if (existing.length > 0) {
       console.log("Seed skipped: users table already has data.");
@@ -43,7 +39,6 @@ export async function seedDatabase(databaseUrl: string): Promise<void> {
       await db.insert(users).values(user).onConflictDoNothing();
     }
 
-    // Log the created users
     const seeded = await db.select().from(users);
     console.log(`Seeded ${seeded.length} users:`);
     for (const u of seeded) {
@@ -57,7 +52,6 @@ export async function seedDatabase(databaseUrl: string): Promise<void> {
   }
 }
 
-// Allow running as standalone script: tsx src/db/seed.ts
 if (require.main === module) {
   const url =
     process.env.DATABASE_URL ||

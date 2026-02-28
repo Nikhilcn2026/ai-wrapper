@@ -4,8 +4,6 @@ import type { HealthStatus } from "../types";
 
 const router = Router();
 
-// ---- GET /health ----
-
 router.get("/", async (_req: Request, res: Response): Promise<void> => {
   const dbConnected = await checkDbConnection();
 

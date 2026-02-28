@@ -4,8 +4,6 @@ import { authMiddleware } from "../middleware/auth";
 
 const router = Router();
 
-// ---- GET /api/usage/:userId ----
-
 router.get(
   "/:userId",
   authMiddleware,
@@ -14,7 +12,6 @@ router.get(
       const { userId } = req.params;
       const user = req.user!;
 
-      // Users can only query their own usage
       if (user.id !== userId) {
         res.status(403).json({
           error: "Forbidden",
@@ -23,7 +20,6 @@ router.get(
         return;
       }
 
-      // Parse optional date range from query params
       const startDate = req.query.start
         ? new Date(req.query.start as string)
         : undefined;
@@ -37,10 +33,8 @@ router.get(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
-
-// ---- GET /api/usage (own usage) ----
 
 router.get(
   "/",
@@ -62,7 +56,7 @@ router.get(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 export default router;

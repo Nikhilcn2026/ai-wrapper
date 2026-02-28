@@ -4,19 +4,14 @@ import OpenAI from "openai";
 import Stripe from "stripe";
 import { LLMError } from "../services/llm.service";
 
-/**
- * Global Express error handler.
- * Maps known error types to appropriate HTTP responses.
- */
 export function errorHandler(
   err: Error,
   _req: Request,
   res: Response,
-  _next: NextFunction
+  _next: NextFunction,
 ): void {
   console.error(`[Error] ${err.name}: ${err.message}`);
 
-  // Zod validation errors
   if (err instanceof ZodError) {
     res.status(400).json({
       error: "Validation Error",
@@ -28,7 +23,6 @@ export function errorHandler(
     return;
   }
 
-  // OpenAI SDK errors (covers OpenRouter)
   if (err instanceof OpenAI.APIError) {
     const status = err.status || 502;
     res.status(status).json({
@@ -39,7 +33,6 @@ export function errorHandler(
     return;
   }
 
-  // Custom LLM errors
   if (err instanceof LLMError) {
     res.status(502).json({
       error: "LLM Error",
@@ -49,7 +42,6 @@ export function errorHandler(
     return;
   }
 
-  // Stripe errors
   if (err instanceof Stripe.errors.StripeError) {
     res.status(502).json({
       error: "Billing Error",
@@ -59,7 +51,6 @@ export function errorHandler(
     return;
   }
 
-  // Default: internal server error
   res.status(500).json({
     error: "Internal Server Error",
     message:
