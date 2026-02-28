@@ -92,30 +92,30 @@ The `routes/` layer is thin: validate input, call services, return JSON. Busines
 
 **users**
 
-| Column | Type | Notes |
-|---|---|---|
-| id | uuid | Primary key, auto-generated |
-| email | varchar(255) | Unique |
-| stripe_customer_id | varchar(255) | Nullable; links to Stripe |
-| api_key | varchar(255) | Unique; used for authentication |
-| created_at | timestamptz | Default now() |
+| Column             | Type         | Notes                           |
+| ------------------ | ------------ | ------------------------------- |
+| id                 | uuid         | Primary key, auto-generated     |
+| email              | varchar(255) | Unique                          |
+| stripe_customer_id | varchar(255) | Nullable; links to Stripe       |
+| api_key            | varchar(255) | Unique; used for authentication |
+| created_at         | timestamptz  | Default now()                   |
 
 **transactions**
 
-| Column | Type | Notes |
-|---|---|---|
-| id | uuid | Primary key, auto-generated |
-| user_id | uuid | Foreign key → users(id), cascade delete |
-| request_id | uuid | Unique; doubles as Stripe dedup identifier |
-| model | varchar(255) | LLM model used |
-| prompt_tokens | integer | Input tokens |
-| completion_tokens | integer | Output tokens |
-| total_tokens | integer | Sum of prompt + completion |
-| request_timestamp | timestamptz | When the request was initiated |
-| response_timestamp | timestamptz | When the LLM responded |
-| billing_status | enum | `pending`, `reported`, or `failed` |
-| stripe_meter_event_id | varchar(255) | Nullable; Stripe event reference |
-| created_at | timestamptz | Default now() |
+| Column                | Type         | Notes                                      |
+| --------------------- | ------------ | ------------------------------------------ |
+| id                    | uuid         | Primary key, auto-generated                |
+| user_id               | uuid         | Foreign key → users(id), cascade delete    |
+| request_id            | uuid         | Unique; doubles as Stripe dedup identifier |
+| model                 | varchar(255) | LLM model used                             |
+| prompt_tokens         | integer      | Input tokens                               |
+| completion_tokens     | integer      | Output tokens                              |
+| total_tokens          | integer      | Sum of prompt + completion                 |
+| request_timestamp     | timestamptz  | When the request was initiated             |
+| response_timestamp    | timestamptz  | When the LLM responded                     |
+| billing_status        | enum         | `pending`, `reported`, or `failed`         |
+| stripe_meter_event_id | varchar(255) | Nullable; Stripe event reference           |
+| created_at            | timestamptz  | Default now()                              |
 
 ## Running Locally
 
@@ -159,7 +159,7 @@ curl http://localhost:3000/health
 Expected response:
 
 ```json
-{"status":"ok","db":"connected","timestamp":"2026-03-01T12:00:00.000Z"}
+{ "status": "ok", "db": "connected", "timestamp": "2026-03-01T12:00:00.000Z" }
 ```
 
 ### Make a chat request
@@ -177,8 +177,11 @@ The response includes the AI completion, token usage, and billing status:
 {
   "requestId": "d290f1ee-6c54-4b01-90e6-d701748f0851",
   "model": "openai/gpt-3.5-turbo",
-  "message": {"role":"assistant","content":"The capital of France is Paris."},
-  "usage": {"promptTokens":14,"completionTokens":8,"totalTokens":22},
+  "message": {
+    "role": "assistant",
+    "content": "The capital of France is Paris."
+  },
+  "usage": { "promptTokens": 14, "completionTokens": 8, "totalTokens": 22 },
   "billingStatus": "reported"
 }
 ```
@@ -201,14 +204,14 @@ docker-compose down -v     # also delete the database volume
 
 ## Environment Variables
 
-| Variable | Required | Default | Description |
-|---|---|---|---|
-| DATABASE_URL | Yes | — | PostgreSQL connection string |
-| OPENROUTER_API_KEY | Yes | — | OpenRouter API key |
-| STRIPE_SECRET_KEY | Yes | — | Stripe secret key (test mode) |
-| STRIPE_METER_EVENT_NAME | No | ai_tokens_used | Stripe billing meter event name |
-| PORT | No | 3000 | HTTP server port |
-| LOG_LEVEL | No | info | Logging verbosity (debug, info, warn, error) |
+| Variable                | Required | Default        | Description                                  |
+| ----------------------- | -------- | -------------- | -------------------------------------------- |
+| DATABASE_URL            | Yes      | —              | PostgreSQL connection string                 |
+| OPENROUTER_API_KEY      | Yes      | —              | OpenRouter API key                           |
+| STRIPE_SECRET_KEY       | Yes      | —              | Stripe secret key (test mode)                |
+| STRIPE_METER_EVENT_NAME | No       | ai_tokens_used | Stripe billing meter event name              |
+| PORT                    | No       | 3000           | HTTP server port                             |
+| LOG_LEVEL               | No       | info           | Logging verbosity (debug, info, warn, error) |
 
 When running through `docker-compose`, `DATABASE_URL` is set automatically to point at the Postgres container. You only need to provide `OPENROUTER_API_KEY` and `STRIPE_SECRET_KEY`.
 
